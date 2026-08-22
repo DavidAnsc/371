@@ -90,6 +90,10 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
     }
 
     const auto newBlock = coordinateSystem.at(nextX).at(nextY);
+    if (newBlock.getLength() == 10) {
+      recurse(nextX, nextY, 0, 0, coordinateSystem);
+      return;
+    }
     for (int i = 0; i < newBlock.getLength(); ++i) {
       recurse(nextX, nextY, newBlock.getPossibleValues().at(i), 0, coordinateSystem);
     }
