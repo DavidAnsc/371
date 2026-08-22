@@ -1,5 +1,6 @@
 #include "Block.h"
 #include <array>
+#include <set>
 #include <cstdio>
 #include <iostream>
 // stage: 0, 1, 2
@@ -34,29 +35,48 @@ static std::array<std::array<int, 5>, 12> orgMarks {{
                                               {0, 0, 0, 0, 0}}};
 
 int count {0};
-std::array<std::array<std::array<Block, 5>, 12>, 1000> results {};
+std::array<std::array<std::array<Block, 5>, 12>, 50000> results {};
 
 bool checkIsShaded(int x, int y) {
-  if (
-    (x != 0 && y != 1) &&
-    (x != 1 && y != 1) &&
-    (x != 1 && y != 3) &&
-    (x != 2 && y != 3) &&
-    (x != 4 && y != 1) &&
-    (x != 4 && y != 2) &&
-    (x != 4 && y != 3) &&
-    (x != 6 && y != 1) &&
-    (x != 7 && y != 1) &&
-    (x != 7 && y != 3) &&
-    (x != 8 && y != 3) &&
-    (x != 9 && y != 3) &&
-    (x != 10 && y != 3) &&
-    (x != 10 && y != 1) &&
-    (x != 11 && y != 1)
-  ) {
-    return false;
+  static const std::set<std::pair<int, int>> shaded = {
+    {0, 1}, {1, 1}, {1, 3}, {2, 3}, {4, 1},
+    {4, 2}, {4, 3}, {6, 1}, {7, 1}, {7, 3},
+    {8, 3}, {9, 3}, {10, 3}, {10, 1}, {11, 1}
+  };
+  return shaded.find({x, y}) != shaded.end();
+}
+
+bool checkHasDuplicates(int xAxis, int yAxis, const std::array<std::array<Block, 5>, 12>& coordinateSystem) {
+  int tempNumCount {};
+  std::set<int> tempNums {};
+  for (int yI = 0; yI < 5; ++yI) {
+    int val = coordinateSystem.at(xAxis).at(yI).get();
+    if (val == 0) {
+      continue;
+    }
+    ++tempNumCount;
+    tempNums.insert(val);
   }
-  return true;
+  
+  if (tempNumCount != tempNums.size()) {
+    return true;
+  }
+
+  tempNumCount = 0;
+  tempNums = {};
+  for (int xI = 0; xI < 12; ++xI) {
+    int val = coordinateSystem.at(xI).at(yAxis).get();
+    if (val == 0) {
+      continue;
+    }
+    ++tempNumCount;
+    tempNums.insert(val);
+  }
+
+  if (tempNumCount != tempNums.size()) {
+    return true;
+  }
+  return false;
 }
 
 void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
@@ -74,17 +94,25 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
     }
 
     if (nextX >= 12) {
+      results[count] = coordinateSystem;
       ++count;
       printf("finished stage 0 compute num: [%d].\n", count);
 
       return;
     }
     const int oldBlockValue = coordinateSystem.at(xOld).at(yOld).get();
+
+    
     if (orgMarks.at(xOld).at(yOld) == 1 && checkIsShaded(xOld, yOld) == false) {
       coordinateSystem.at(xOld).at(yOld).setValue(choice);
       printf("Assigned value: [%d] to (%d, %d)\n", choice, xOld, yOld);
     }
-
+    if (checkHasDuplicates(xOld, yOld, coordinateSystem) == true) {
+      coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+      printf("found duplicates in the same row/column.\n");
+      return;
+    }
+    
     const auto newBlock = coordinateSystem.at(nextX).at(nextY);
     if (newBlock.getLength() == 10) {
       recurse(nextX, nextY, 0, 0, coordinateSystem);
@@ -105,6 +133,6 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
 
 int main() {
   auto newCoordinate = coordinate;
-  recurse(0, 0, 0, 0, coordinate);
+  recurse(0, 0, 0, 0, newCoordinate);
   return 0;
 }
