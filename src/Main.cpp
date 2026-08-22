@@ -74,13 +74,9 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
     }
 
     if (nextX >= 12) {
-      printf("you've finished stage 0 compute.\n");
-      // if (count == 1000) {
-      //   printf("ERR\n");
-      //   return;
-      // }
-      // results[count] = coordinateSystem;
-      // ++count;
+      ++count;
+      printf("finished stage 0 compute num: [%d].\n", count);
+
       return;
     }
     const int oldBlockValue = coordinateSystem.at(xOld).at(yOld).get();
