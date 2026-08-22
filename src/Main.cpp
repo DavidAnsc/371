@@ -33,6 +33,9 @@ static std::array<std::array<int, 5>, 12> orgMarks {{
                                               {0, 0, 1, 0, 0},
                                               {0, 0, 0, 0, 0}}};
 
+int count {0};
+std::array<std::array<std::array<Block, 5>, 12>, 1000> results {};
+
 bool checkIsShaded(int x, int y) {
   if (
     (x != 0 && y != 1) &&
@@ -77,6 +80,11 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
 
     if (nextX >= 12) {
       printf("you've finished stage 0 compute.\n");
+      if (count == 1000) {
+        return;
+      }
+      results[count] = coordinateSystem;
+      ++count;
       return;
     }
     
@@ -85,17 +93,9 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
       printf("Assigned value: [%d] to (%d, %d)\n", choice, xOld, yOld);
     }
 
-    for (int x = nextX; x < 12; ++x) {
-      for (int y = nextY; y < 5; ++y) {
-        if (x > static_cast<size_t>(std::numeric_limits<int>::max()) || y > static_cast<size_t>(std::numeric_limits<int>::max())) {
-          printf("the value of x or y exceeds the integer range. continuing...");
-          continue;
-        }
-        const auto newBlock = coordinateSystem.at(x).at(y);
-        for (int i = 0; i < newBlock.getLength(); ++i) {
-          recurse(x, y, newBlock.getPossibleValues().at(i), 0, coordinateSystem);
-        }
-      }
+    const auto newBlock = coordinateSystem.at(nextX).at(nextY);
+    for (int i = 0; i < newBlock.getLength(); ++i) {
+      recurse(nextX, nextY, newBlock.getPossibleValues().at(i), 0, coordinateSystem);
     }
   } else if (stage == 1) {
     
