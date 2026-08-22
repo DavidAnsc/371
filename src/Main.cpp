@@ -59,14 +59,9 @@ bool checkIsShaded(int x, int y) {
   return true;
 }
 
-void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Block, 5>, 12> coordinateSystem) {
+void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
   if (stage == 0) {
     const Block tempBlock = coordinateSystem.at(xOld).at(yOld);
-
-    if (tempBlock.get() != 0) {
-      printf("there's already a value applied to (%d, %d)\n", xOld, yOld);
-      return;
-    }
     
     int nextY = yOld;
     int nextX = xOld;
@@ -80,15 +75,16 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
 
     if (nextX >= 12) {
       printf("you've finished stage 0 compute.\n");
-      if (count == 1000) {
-        return;
-      }
-      results[count] = coordinateSystem;
-      ++count;
+      // if (count == 1000) {
+      //   printf("ERR\n");
+      //   return;
+      // }
+      // results[count] = coordinateSystem;
+      // ++count;
       return;
     }
-    
-    if (orgMarks.at(xOld).at(yOld) != 0 || checkIsShaded(xOld, yOld) == true) {
+    const int oldBlockValue = coordinateSystem.at(xOld).at(yOld).get();
+    if (orgMarks.at(xOld).at(yOld) == 1 && checkIsShaded(xOld, yOld) == false) {
       coordinateSystem.at(xOld).at(yOld).setValue(choice);
       printf("Assigned value: [%d] to (%d, %d)\n", choice, xOld, yOld);
     }
@@ -97,6 +93,7 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
     for (int i = 0; i < newBlock.getLength(); ++i) {
       recurse(nextX, nextY, newBlock.getPossibleValues().at(i), 0, coordinateSystem);
     }
+    coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
   } else if (stage == 1) {
     
   } else if (stage == 2) {
@@ -107,6 +104,7 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
 }
 
 int main() {
+  auto newCoordinate = coordinate;
   recurse(0, 0, 0, 0, coordinate);
   return 0;
 }
