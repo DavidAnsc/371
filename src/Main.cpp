@@ -79,6 +79,19 @@ bool checkHasDuplicates(int xAxis, int yAxis, const std::array<std::array<Block,
   return false;
 }
 
+bool checkHasRepeatWithinArea(const std::array<std::array<Block, 5>, 12>& system, const std::array<std::array<int, 2>, 3> areaDef) {
+  int tempNumCount {};
+  std::set<int> tempNums {};
+
+  for (int i = 0; i < 3; ++i) {
+    const int currentValue = system.at(areaDef.at(i).at(0)).at(areaDef.at(i).at(1)).get();
+    // note that there's no 0-handling, meaning you make sure the parameters given are right & accurate.
+    ++tempNumCount;
+    tempNums.insert(currentValue);
+  }
+  return true ? tempNumCount == tempNums.size() : false;
+}
+
 void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
   if (stage == 0) {
     const Block tempBlock = coordinateSystem.at(xOld).at(yOld);
@@ -131,13 +144,18 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
   }
 }
 
-void printBoard(std::array<std::array<Block, 5>, 12> system) {
+void printBoard(const std::array<std::array<Block, 5>, 12>& system) {
+  printf("\n");
+  for (int i = 0; i < 4*12; ++i) {
+    printf("-");
+  }
+  printf("\n");
   for (int y = 0; y < 5; ++y) {
     for (int x = 0; x < 12; ++x) {
       if (checkIsShaded(x, y) == true) {
-        printf("  |");
-      } else if (system.at(x).at(y).get() == 0) {
         printf(" \033[47m \033[0m |");
+      } else if (system.at(x).at(y).get() == 0) {
+        printf("   |");
       } else {
         printf(" %d |", system.at(x).at(y).get());
       }
