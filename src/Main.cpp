@@ -108,6 +108,28 @@ bool checkHasRepeatWithinDefinedAreas(const std::array<std::array<Block, 5>, 12>
   return false;
 }
 
+bool checkSums(const int xAxis, const int yAxis, const std::array<std::array<Block, 5>, 12>& system) {
+  const int otherY = (yAxis == 4) ? 3 : yAxis + 1;
+  const int otherX = (xAxis == 11) ? 10 : xAxis + 1;
+
+  int xAxisSum {};
+  int xAxisSumOther {};
+  int yAxisSum {};
+  int yAxisSumOther {};
+
+  for (int xA = 0; xA < 12; ++xA) {
+    xAxisSum += system.at(xA).at(yAxis).get();
+    xAxisSumOther += system.at(xA).at(otherY).get();
+  }
+
+  for (int yA = 0; yA < 5; ++yA) {
+    yAxisSum += system.at(xAxis).at(yA).get();
+    yAxisSumOther += system.at(otherX).at(yA).get();
+  }
+
+  return xAxisSum == xAxisSumOther && yAxisSum == yAxisSumOther;
+}
+
 void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
   if (stage == 0) {
     const Block tempBlock = coordinateSystem.at(xOld).at(yOld);
@@ -123,6 +145,11 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
     }
 
     if (nextX >= 12) {
+      if (checkSums(xOld, yOld, coordinateSystem) == false) {
+        printf("the row/col sums don't add up. DELETED BOARD\n");
+        return;
+      }
+
       results[count] = coordinateSystem;
       ++count;
       printf("finished stage 0 compute num: [%d].\n", count);
@@ -130,28 +157,30 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
       return;
     }
     const int oldBlockValue = coordinateSystem.at(xOld).at(yOld).get();
-
     
-    if (orgMarks.at(xOld).at(yOld) == 1 && checkIsShaded(xOld, yOld) == false) {
-      coordinateSystem.at(xOld).at(yOld).setValue(choice);
-      printf("Assigned value: [%d] to (%d, %d)\n", choice, xOld, yOld);
+    coordinateSystem.at(xOld).at(yOld).setValue(choice);
+    printf("Assigned value: [%d] to (%d, %d)\n", choice, xOld, yOld);
+
+    bool skip {false};
+
+    if (checkIsShaded(xOld, yOld) == true) {
+      skip = true;
     }
-    if (checkHasDuplicates(xOld, yOld, coordinateSystem) == true) {
-      coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-      printf("found duplicates in the same row/column.\n");
-      return;
-    }
-    if (checkHasRepeatWithinDefinedAreas(coordinateSystem) == true) {
-      coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-      printf("found duplicates in the areas that it shouldn't be found.\n");
-      return;
+
+    if (skip == false) {
+      if (checkHasDuplicates(xOld, yOld, coordinateSystem) == true) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("found duplicates in the same row/column.\n");
+        return;
+      }
+      if (checkHasRepeatWithinDefinedAreas(coordinateSystem) == true) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("found duplicates in the areas that it shouldn't be found.\n");
+        return;
+      }
     }
     
     const auto newBlock = coordinateSystem.at(nextX).at(nextY);
-    if (newBlock.getLength() == 10) {
-      recurse(nextX, nextY, 0, 0, coordinateSystem);
-      return;
-    }
     for (int i = 0; i < newBlock.getLength(); ++i) {
       recurse(nextX, nextY, newBlock.getPossibleValues().at(i), 0, coordinateSystem);
     }
