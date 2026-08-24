@@ -79,17 +79,33 @@ bool checkHasDuplicates(int xAxis, int yAxis, const std::array<std::array<Block,
   return false;
 }
 
-bool checkHasRepeatWithinArea(const std::array<std::array<Block, 5>, 12>& system, const std::array<std::array<int, 2>, 3> areaDef) {
-  int tempNumCount {};
+static bool checkHasRepeatWithinArea(const std::array<std::array<Block, 5>, 12>& system, const std::array<std::array<int, 2>, 3> areaDef) {
+  int tempNumCount {0};
   std::set<int> tempNums {};
 
   for (int i = 0; i < 3; ++i) {
     const int currentValue = system.at(areaDef.at(i).at(0)).at(areaDef.at(i).at(1)).get();
-    // note that there's no 0-handling, meaning you make sure the parameters given are right & accurate.
+    if (currentValue == 0) {
+      continue;
+    }
     ++tempNumCount;
     tempNums.insert(currentValue);
   }
-  return true ? tempNumCount == tempNums.size() : false;
+  
+  if (tempNumCount == static_cast<int>(tempNums.size())) {
+    return false;
+  }
+  return true;
+}
+
+bool checkHasRepeatWithinDefinedAreas(const std::array<std::array<Block, 5>, 12>& system) {
+  std::array<std::array<int, 2>, 3> area1 {{{0, 2}, {0, 3}, {1, 2}}};
+  std::array<std::array<int, 2>, 3> area2 {{{4, 0}, {5, 0}, {5, 1}}};
+  std::array<std::array<int, 2>, 3> area3 {{{9, 1}, {9, 2}, {10, 2}}};
+  if (checkHasRepeatWithinArea(system, area1) || checkHasRepeatWithinArea(system, area2) || checkHasRepeatWithinArea(system, area3)) {
+    return true;
+  }
+  return false;
 }
 
 void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
@@ -123,6 +139,11 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
     if (checkHasDuplicates(xOld, yOld, coordinateSystem) == true) {
       coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
       printf("found duplicates in the same row/column.\n");
+      return;
+    }
+    if (checkHasRepeatWithinDefinedAreas(coordinateSystem) == true) {
+      coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+      printf("found duplicates in the areas that it shouldn't be found.\n");
       return;
     }
     
@@ -172,6 +193,8 @@ int main() {
   auto newCoordinate = coordinate;
   recurse(0, 0, 0, 0, newCoordinate);
 
-  printBoard(results[319]);
+  for (int i = 0; i < 5; ++i) {
+    printBoard(results[i]);
+  }
   return 0;
 }
