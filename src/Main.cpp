@@ -131,8 +131,29 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
   }
 }
 
+void printBoard(std::array<std::array<Block, 5>, 12> system) {
+  for (int y = 0; y < 5; ++y) {
+    for (int x = 0; x < 12; ++x) {
+      if (checkIsShaded(x, y) == true) {
+        printf("  |");
+      } else if (system.at(x).at(y).get() == 0) {
+        printf(" \033[47m \033[0m |");
+      } else {
+        printf(" %d |", system.at(x).at(y).get());
+      }
+    }
+    printf("\n");
+    for (int i = 0; i < 4*12; ++i) {
+      printf("-");
+    }
+    printf("\n");
+  }
+}
+
 int main() {
   auto newCoordinate = coordinate;
   recurse(0, 0, 0, 0, newCoordinate);
+
+  printBoard(results[319]);
   return 0;
 }
