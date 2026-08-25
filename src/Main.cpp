@@ -291,109 +291,101 @@ int getColSum(const int xAxis, const std::array<std::array<Block, 5>, 12>& syste
   return tempSum;
 }
 
-void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
-  if (stage == 0) {
-    const Block tempBlock = coordinateSystem.at(xOld).at(yOld);
-    
-    int nextY = yOld;
-    int nextX = xOld;
+void recurse(int& xOld, int& yOld, int choice, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
+  const Block tempBlock = coordinateSystem.at(xOld).at(yOld);
+  
+  int nextY = yOld;
+  int nextX = xOld;
 
-    if (nextY == 4) {
-      ++nextX;
-      nextY = 0;
-    } else {
-      ++nextY;
-    }
+  if (nextY == 4) {
+    ++nextX;
+    nextY = 0;
+  } else {
+    ++nextY;
+  }
 
-    if (nextX >= 12) {
-      if (checkSums(xOld, yOld, coordinateSystem) == false) {
-        printf("the row/col sums don't add up. DELETED BOARD\n");
-        return;
-      }
-
-      results = coordinateSystem;
-      ++count;
-      printf("finished compute num: [%d].\n", count);
-      exit(0);
-
+  if (nextX >= 12) {
+    if (checkSums(xOld, yOld, coordinateSystem) == false) {
+      printf("the row/col sums don't add up. DELETED BOARD\n");
       return;
     }
-    const int oldBlockValue = coordinateSystem.at(xOld).at(yOld).get();
-    
-    coordinateSystem.at(xOld).at(yOld).setValue(choice);
-    printf("Assigned value: [%d] to (%d, %d)\n", choice, xOld, yOld);
 
-    bool skip {false};
+    results = coordinateSystem;
+    ++count;
+    printf("finished compute num: [%d].\n", count);
+    exit(0);
 
-    if (checkIsShaded(xOld, yOld) == true) {
-      skip = true;
-    }
-
-    if (skip == false) {
-      if (xOld == 2 && yOld == 4) {
-        if (!checkIsValidForRestrictedArea(1, coordinateSystem)) {
-          coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-          printf("the restricted area is not valid.\n");
-          return;
-        }
-      } else if (xOld == 3 && yOld == 2) {
-        if (!checkIsValidForRestrictedArea(2, coordinateSystem)) {
-          coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-          printf("the restricted area is not valid.\n");
-          return;
-        }
-      } else if (xOld == 7 && yOld == 4) {
-        if (!checkIsValidForRestrictedArea(3, coordinateSystem)) {
-          coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-          printf("the restricted area is not valid.\n");
-          return;
-        }
-      } else if (xOld == 8 && yOld == 2) {
-        if (!checkIsValidForRestrictedArea(4, coordinateSystem)) {
-          coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-          printf("the restricted area is not valid.\n");
-          return;
-        }
-      } else if (xOld == 10 && yOld == 4) {
-        if (!checkIsValidForRestrictedArea(5, coordinateSystem)) {
-          coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-          printf("the restricted area is not valid.\n");
-          return;
-        }
-      }
-      if (yOld == 4) {
-        // this means it just finished a col
-        int colSum = getColSum(xOld, coordinateSystem);
-        if (colSum != 10) {
-          coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-          printf("the col that just got finished doesn't have a col sum of 10.\n");
-          return;
-        }
-      }
-      if (checkHasDuplicates(xOld, yOld, coordinateSystem) == true) {
-        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-        printf("found duplicates in the same row/column.\n");
-        return;
-      }
-      if (checkHasRepeatWithinDefinedAreas(coordinateSystem) == true) {
-        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-        printf("found duplicates in the areas that it shouldn't be found.\n");
-        return;
-      }
-    }
-    
-    const auto newBlock = coordinateSystem.at(nextX).at(nextY);
-    for (int i = 0; i < newBlock.getLength(); ++i) {
-      recurse(nextX, nextY, newBlock.getPossibleValues().at(i), 0, coordinateSystem);
-    }
-    coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
-  } else if (stage == 1) {
-    
-  } else if (stage == 2) {
-
-  } else {
-    printf("error stage\n");
+    return;
   }
+  const int oldBlockValue = coordinateSystem.at(xOld).at(yOld).get();
+  
+  coordinateSystem.at(xOld).at(yOld).setValue(choice);
+  printf("Assigned value: [%d] to (%d, %d)\n", choice, xOld, yOld);
+
+  bool skip {false};
+
+  if (checkIsShaded(xOld, yOld) == true) {
+    skip = true;
+  }
+
+  if (skip == false) {
+    if (xOld == 2 && yOld == 4) {
+      if (!checkIsValidForRestrictedArea(1, coordinateSystem)) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("the restricted area is not valid.\n");
+        return;
+      }
+    } else if (xOld == 3 && yOld == 2) {
+      if (!checkIsValidForRestrictedArea(2, coordinateSystem)) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("the restricted area is not valid.\n");
+        return;
+      }
+    } else if (xOld == 7 && yOld == 4) {
+      if (!checkIsValidForRestrictedArea(3, coordinateSystem)) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("the restricted area is not valid.\n");
+        return;
+      }
+    } else if (xOld == 8 && yOld == 2) {
+      if (!checkIsValidForRestrictedArea(4, coordinateSystem)) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("the restricted area is not valid.\n");
+        return;
+      }
+    } else if (xOld == 10 && yOld == 4) {
+      if (!checkIsValidForRestrictedArea(5, coordinateSystem)) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("the restricted area is not valid.\n");
+        return;
+      }
+    }
+    if (yOld == 4) {
+      // this means it just finished a col
+      int colSum = getColSum(xOld, coordinateSystem);
+      if (colSum != 10) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("the col that just got finished doesn't have a col sum of 10.\n");
+        return;
+      }
+    }
+    if (checkHasDuplicates(xOld, yOld, coordinateSystem) == true) {
+      coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+      printf("found duplicates in the same row/column.\n");
+      return;
+    }
+    if (checkHasRepeatWithinDefinedAreas(coordinateSystem) == true) {
+      coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+      printf("found duplicates in the areas that it shouldn't be found.\n");
+      return;
+    }
+  }
+  
+  const auto newBlock = coordinateSystem.at(nextX).at(nextY);
+  for (int i = 0; i < newBlock.getLength(); ++i) {
+    recurse(nextX, nextY, newBlock.getPossibleValues().at(i), coordinateSystem);
+  }
+  coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
 }
 
 void printBoard(const std::array<std::array<Block, 5>, 12>& system) {
@@ -422,7 +414,12 @@ void printBoard(const std::array<std::array<Block, 5>, 12>& system) {
 
 int main() {
   auto newCoordinate = coordinate;
-  recurse(0, 0, 0, 0, newCoordinate);
+
+  int xOld = 0;
+  int yOld = 0;
+  int initChoice = 0;
+
+  recurse(xOld, yOld, initChoice, newCoordinate);
 
     printBoard(results);
   return 0;
