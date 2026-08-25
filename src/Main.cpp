@@ -97,6 +97,149 @@ static bool checkHasRepeatWithinArea(const std::array<std::array<Block, 5>, 12>&
   }
   return true;
 }
+static bool checkHasRepeatWithinArea(const std::array<std::array<Block, 5>, 12>& system, const std::array<std::array<int, 2>, 4> areaDef) {
+  int tempNumCount {0};
+  std::set<int> tempNums {};
+
+  for (int i = 0; i < 4; ++i) {
+    const int currentValue = system.at(areaDef.at(i).at(0)).at(areaDef.at(i).at(1)).get();
+    if (currentValue == 0) {
+      continue;
+    }
+    ++tempNumCount;
+    tempNums.insert(currentValue);
+  }
+  
+  if (tempNumCount == static_cast<int>(tempNums.size())) {
+    return false;
+  }
+  return true;
+}
+
+bool checkHasEmptyValueWithinArea(const std::array<std::array<Block, 5>, 12>& system, const std::array<std::array<int, 2>, 4> areaDef) {
+  for (int i = 0; i < 4; ++i) {
+    int xCoo = areaDef.at(i).at(0);
+    int yCoo = areaDef.at(i).at(1);
+    if (yCoo == 0 && xCoo == 0) {
+      continue;
+    }
+    if (system.at(xCoo).at(yCoo).get() == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool checkHasSpecificValuesWithinArea(const std::array<std::array<Block, 5>, 12>& system, const std::array<std::array<int, 2>, 4> areaDef, const std::set<int> vals) {
+  std::set<int> tempSet {};
+  for (int i = 0; i < 4; ++i) {
+    int currentVal = system.at(areaDef.at(i).at(0)).at(areaDef.at(i).at(1)).get();
+    if (currentVal == 0) {
+      continue;
+    }
+    tempSet.insert(currentVal);
+  }
+  if (std::includes(tempSet.begin(), tempSet.end(), vals.begin(), vals.end())) {
+    return true;
+  }
+  return false;
+}
+
+bool checkIsValidForRestrictedArea(const int num, const std::array<std::array<Block, 5>, 12>& system) {
+  if (num == 1) {
+    std::array<std::array<int, 2>, 4> area1 {{{1, 4}, {2, 4}}};
+    std::set<int> area1Vals {1};
+
+    bool empty1 = checkHasEmptyValueWithinArea(system, area1);
+    bool repeat1 = checkHasRepeatWithinArea(system, area1);
+    bool hasVal1 = checkHasSpecificValuesWithinArea(system, area1, area1Vals);
+
+    if (empty1) {
+      return false;
+    }
+    if (repeat1) {
+      return false;
+    }
+    if (!hasVal1) {
+      return false;
+    }
+    return true;
+  } else if (num == 2) {
+    std::array<std::array<int, 2>, 4> area2 {{{2, 1}, {2, 2}, {3, 1}, {3, 2}}};
+    std::set<int> area2Vals {1, 3, 9};
+
+    bool empty2 = checkHasEmptyValueWithinArea(system, area2);
+    bool repeat2 = checkHasRepeatWithinArea(system, area2);
+    bool hasVal2 = checkHasSpecificValuesWithinArea(system, area2, area2Vals);
+
+    if (empty2) {
+      return false;
+    }
+    if (repeat2) {
+      return false;
+    }
+    if (!hasVal2) {
+      return false;
+    }
+    return true;
+  } else if (num == 3) {
+    std::array<std::array<int, 2>, 4> area3 {{{6, 3}, {6, 4}, {7, 4}}};
+    std::set<int> area3Vals {8, 9};
+
+    bool empty3 = checkHasEmptyValueWithinArea(system, area3);
+    bool repeat3 = checkHasRepeatWithinArea(system, area3);
+    bool hasVal3 = checkHasSpecificValuesWithinArea(system, area3, area3Vals);
+
+    if (empty3) {
+      return false;
+    }
+    if (repeat3) {
+      return false;
+    }
+    if (!hasVal3) {
+      return false;
+    }
+    return true;
+  } else if (num == 4) {
+    std::array<std::array<int, 2>, 4> area4 {{{7, 2}, {8, 1}, {8, 2}}};
+    std::set<int> area4Vals {2, 4};
+    
+    bool empty4 = checkHasEmptyValueWithinArea(system, area4);
+    bool repeat4 = checkHasRepeatWithinArea(system, area4);
+    bool hasVal4 = checkHasSpecificValuesWithinArea(system, area4, area4Vals);
+
+    if (empty4) {
+      return false;
+    }
+    if (repeat4) {
+      return false;
+    }
+    if (!hasVal4) {
+      return false;
+    }
+    return true;
+  } else if (num == 5) {
+    std::array<std::array<int, 2>, 4> area5 {{{9, 4}, {10, 4}}};
+    std::set<int> area5Vals {3, 6};
+    
+    bool empty5 = checkHasEmptyValueWithinArea(system, area5);
+    bool repeat5 = checkHasRepeatWithinArea(system, area5);
+    bool hasVal5 = checkHasSpecificValuesWithinArea(system, area5, area5Vals);
+
+    if (empty5) {
+      return false;
+    }
+    if (repeat5) {
+      return false;
+    }
+    if (!hasVal5) {
+      return false;
+    }
+    return true;
+  } else {
+    abort();
+  }
+}
 
 bool checkHasRepeatWithinDefinedAreas(const std::array<std::array<Block, 5>, 12>& system) {
   std::array<std::array<int, 2>, 3> area1 {{{0, 2}, {0, 3}, {1, 2}}};
@@ -173,6 +316,18 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
     }
 
     if (skip == false) {
+      if (xOld == 2 && yOld == 4) {
+        checkIsValidForRestrictedArea(1, coordinateSystem);
+      } else if (xOld == 3 && yOld == 2) {
+        checkIsValidForRestrictedArea(2, coordinateSystem);
+      } else if (xOld == 7 && yOld == 4) {
+        checkIsValidForRestrictedArea(3, coordinateSystem);
+      } else if (xOld == 8 && yOld == 2) {
+        checkIsValidForRestrictedArea(4, coordinateSystem);
+      } else if (xOld == 10 && yOld == 4) {
+        checkIsValidForRestrictedArea(5, coordinateSystem);
+      }
+      
       if (checkHasDuplicates(xOld, yOld, coordinateSystem) == true) {
         coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
         printf("found duplicates in the same row/column.\n");
