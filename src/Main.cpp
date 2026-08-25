@@ -35,7 +35,7 @@ static std::array<std::array<int, 5>, 12> orgMarks {{
                                               {0, 0, 0, 0, 0}}};
 
 int count {0};
-std::array<std::array<std::array<Block, 5>, 12>, 50000> results {};
+std::array<std::array<Block, 5>, 12> results {};
 
 bool checkIsShaded(int x, int y) {
   static const std::set<std::pair<int, int>> shaded = {
@@ -109,25 +109,29 @@ bool checkHasRepeatWithinDefinedAreas(const std::array<std::array<Block, 5>, 12>
 }
 
 bool checkSums(const int xAxis, const int yAxis, const std::array<std::array<Block, 5>, 12>& system) {
-  const int otherY = (yAxis == 4) ? 3 : yAxis + 1;
-  const int otherX = (xAxis == 11) ? 10 : xAxis + 1;
+  std::set<int> xAxisSumOther {};
+  std::set<int> yAxisSumOther {};
 
-  int xAxisSum {};
-  int xAxisSumOther {};
-  int yAxisSum {};
-  int yAxisSumOther {};
+  for (int yI = 0; yI < 5; ++yI) {
+    int tempSum {};
+    for (int xA = 0; xA < 12; ++xA) {
+      tempSum += system.at(xA).at(yI).get();
+    }
+    xAxisSumOther.insert(tempSum);
+  }
 
   for (int xA = 0; xA < 12; ++xA) {
-    xAxisSum += system.at(xA).at(yAxis).get();
-    xAxisSumOther += system.at(xA).at(otherY).get();
+    int tempSum {};
+    for (int yI = 0; yI < 5; ++yI) {
+      tempSum += system.at(xA).at(yI).get();
+    }
+    yAxisSumOther.insert(tempSum);
   }
-
-  for (int yA = 0; yA < 5; ++yA) {
-    yAxisSum += system.at(xAxis).at(yA).get();
-    yAxisSumOther += system.at(otherX).at(yA).get();
+  
+  if (xAxisSumOther.size() == 1 && yAxisSumOther.size() == 1) {
+    return true;
   }
-
-  return xAxisSum == xAxisSumOther && yAxisSum == yAxisSumOther;
+  return false;
 }
 
 void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
@@ -150,9 +154,10 @@ void recurse(int xOld, int yOld, int choice, int stage, std::array<std::array<Bl
         return;
       }
 
-      results[count] = coordinateSystem;
+      results = coordinateSystem;
       ++count;
-      printf("finished stage 0 compute num: [%d].\n", count);
+      printf("finished compute num: [%d].\n", count);
+      exit(0);
 
       return;
     }
@@ -222,8 +227,6 @@ int main() {
   auto newCoordinate = coordinate;
   recurse(0, 0, 0, 0, newCoordinate);
 
-  for (int i = 0; i < 5; ++i) {
-    printBoard(results[i]);
-  }
+    printBoard(results);
   return 0;
 }
