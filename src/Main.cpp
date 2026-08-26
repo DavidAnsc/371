@@ -257,16 +257,15 @@ bool checkHasRepeatWithinDefinedAreas(const std::array<std::array<Block, 5>, 12>
   return false;
 }
 
-bool checkSums(const int xAxis, const int yAxis, const std::array<std::array<Block, 5>, 12>& system) {
-  std::set<int> xAxisSumOther {};
-  std::set<int> yAxisSumOther {};
-
+bool checkSums(const std::array<std::array<Block, 5>, 12>& system) {
   for (int yI = 0; yI < 5; ++yI) {
     int tempSum {};
     for (int xA = 0; xA < 12; ++xA) {
       tempSum += system.at(xA).at(yI).get();
     }
-    xAxisSumOther.insert(tempSum);
+    if (tempSum != 24) {
+      return false;
+    }
   }
 
   for (int xA = 0; xA < 12; ++xA) {
@@ -274,13 +273,11 @@ bool checkSums(const int xAxis, const int yAxis, const std::array<std::array<Blo
     for (int yI = 0; yI < 5; ++yI) {
       tempSum += system.at(xA).at(yI).get();
     }
-    yAxisSumOther.insert(tempSum);
+    if (tempSum != 10) {
+      return false;
+    }
   }
-  
-  if (xAxisSumOther.size() == 1 && yAxisSumOther.size() == 1) {
-    return true;
-  }
-  return false;
+  return true;
 }
 
 int getColSum(const int xAxis, const std::array<std::array<Block, 5>, 12>& system) {
@@ -305,7 +302,7 @@ void recurse(int& xOld, int& yOld, int choice, std::array<std::array<Block, 5>, 
   }
 
   if (nextX >= 12) {
-    if (checkSums(xOld, yOld, coordinateSystem) == false) {
+    if (checkSums(coordinateSystem) == false) {
       printf("the row/col sums don't add up. DELETED BOARD\n");
       return;
     }
@@ -329,6 +326,7 @@ void recurse(int& xOld, int& yOld, int choice, std::array<std::array<Block, 5>, 
   }
 
   if (skip == false) {
+    // check for the restricted areas
     if (xOld == 2 && yOld == 4) {
       if (!checkIsValidForRestrictedArea(1, coordinateSystem)) {
         coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
@@ -360,6 +358,7 @@ void recurse(int& xOld, int& yOld, int choice, std::array<std::array<Block, 5>, 
         return;
       }
     }
+    
     if (yOld == 4) {
       // this means it just finished a col
       int colSum = getColSum(xOld, coordinateSystem);
