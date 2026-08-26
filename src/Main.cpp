@@ -108,6 +108,10 @@ static bool checkHasRepeatWithinArea(const std::array<std::array<Block, 5>, 12>&
   std::set<int> tempNums {};
 
   for (int i = 0; i < 4; ++i) {
+    if (areaDef.at(i).at(0) == 0 && areaDef.at(i).at(1) == 0) {
+      continue;
+    }
+
     const int currentValue = system.at(areaDef.at(i).at(0)).at(areaDef.at(i).at(1)).get();
     if (currentValue == 0) {
       continue;
@@ -139,6 +143,10 @@ bool checkHasEmptyValueWithinArea(const std::array<std::array<Block, 5>, 12>& sy
 bool checkHasSpecificValuesWithinArea(const std::array<std::array<Block, 5>, 12>& system, const std::array<std::array<int, 2>, 4> areaDef, const std::set<int> vals) {
   std::set<int> tempSet {};
   for (int i = 0; i < 4; ++i) {
+    if (areaDef.at(i).at(0) == 0 && areaDef.at(i).at(1) == 0) {
+      continue;
+    }
+    
     int currentVal = system.at(areaDef.at(i).at(0)).at(areaDef.at(i).at(1)).get();
     if (currentVal == 0) {
       continue;
