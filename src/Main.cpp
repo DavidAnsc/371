@@ -296,6 +296,61 @@ int getColSum(const int xAxis, const std::array<std::array<Block, 5>, 12>& syste
   return tempSum;
 }
 
+bool checkFirstBlockConstraint(const int& value) {
+  if (value == 1) {
+    return true;
+  }
+  return false;
+}
+
+bool checkSecondAreaConstraint(const std::array<int, 3>& values) {
+  // (4, 1) (5, 0) (5, 1)
+  for (int i = 0; i < 3; ++i) {
+    if (i == 0) {
+      if (values.at(i) != 8) {
+        return false;
+      }
+      continue;
+    }
+
+    if (i == 1) {
+      if (values.at(i) != 3) {
+        return false;
+      }
+      continue;
+    }
+
+    if (values.at(i) != 7) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool checkThirdAreaConstraint(const std::array<int, 3>& values) {
+  // (9, 1) (9, 2) (9, 4)
+  for (int i = 0; i < 3; ++i) {
+    if (i == 0) {
+      if (values.at(i) != 3) {
+        return false;
+      }
+      continue;
+    }
+
+    if (i == 1) {
+      if (values.at(i) != 1) {
+        return false;
+      }
+      continue;
+    }
+
+    if (values.at(i) != 6) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void recurse(int& xOld, int& yOld, int choice, std::array<std::array<Block, 5>, 12>& coordinateSystem) {
   const Block tempBlock = coordinateSystem.at(xOld).at(yOld);
   
@@ -385,6 +440,35 @@ void recurse(int& xOld, int& yOld, int choice, std::array<std::array<Block, 5>, 
       coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
       printf("found duplicates in the areas that it shouldn't be found.\n");
       return;
+    }
+    
+    if (xOld == 3 && yOld == 1) {
+      if (checkFirstBlockConstraint(coordinateSystem.at(xOld).at(yOld).get()) == false) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("block (3, 1) is not set to 1.\n");
+        return;
+      }
+    }
+    if (xOld == 5 && yOld == 1) {
+      std::array<int, 3> blocks {coordinateSystem.at(4).at(0).get(), coordinateSystem.at(5).at(0).get(), coordinateSystem.at(5).at(1).get()};
+      if (checkSecondAreaConstraint(blocks) == false) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("second area do not match expected values.\n");
+        return;
+      }
+      const auto newBlock = coordinateSystem.at(6).at(0);
+      for (int i = 0; i < newBlock.getLength(); ++i) {
+        recurse(nextX, nextY, newBlock.getPossibleValues().at(i), coordinateSystem);
+      }
+      coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+    }
+    if (xOld == 9 && yOld == 4) {
+      std::array<int, 3> blocks {coordinateSystem.at(9).at(1).get(), coordinateSystem.at(9).at(2).get(), coordinateSystem.at(9).at(4).get()};
+      if (checkThirdAreaConstraint(blocks) == false) {
+        coordinateSystem.at(xOld).at(yOld).setValue(oldBlockValue);
+        printf("third area do not match expected values.\n");
+        return;
+      }
     }
   }
   
