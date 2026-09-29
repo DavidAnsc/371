@@ -11,7 +11,7 @@ class Block {
   // length's default value is 1 since it always has the choice to be 0 and we skipped the first 0 in the
   inline Block(std::array<int, 10> possibleValues): value(0), length(0), possibleValues(possibleValues) {
     // since 0 could be in the first place. and we want to skip that specific 0 and actually count it.
-    for (size_t i = 0; i < 10; ++i) {
+    for (std::size_t i = 0; i < 10; ++i) {
       if (i != 0 && possibleValues.at(i) == 0) {
         break;
       }

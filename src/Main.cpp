@@ -1,14 +1,18 @@
 #include "Block.h"
+#include <algorithm>
 #include <array>
 #include <set>
 #include <cstdio>
 #include <iostream>
-
+#include <chrono>
+#include <thread>
 
 /*
 C = 10
 R = 24
 */
+
+constexpr int INTERVAL {2};
 
 
 static std::array<std::array<Block, 5>, 12> coordinate {{
@@ -471,7 +475,7 @@ void recurse(int& xOld, int& yOld, int choice, std::array<std::array<Block, 5>, 
       }
     }
   }
-  
+  std::this_thread::sleep_for(std::chrono::milliseconds(INTERVAL));
   const auto newBlock = coordinateSystem.at(nextX).at(nextY);
   for (int i = 0; i < newBlock.getLength(); ++i) {
     recurse(nextX, nextY, newBlock.getPossibleValues().at(i), coordinateSystem);
